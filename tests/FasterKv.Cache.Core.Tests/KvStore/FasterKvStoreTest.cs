@@ -156,7 +156,7 @@ public class FasterKvStoreTest
     [Fact]
     public void Set_Big_DataSize_Should_Success()
     {
-        int nums = 10000;
+        int nums = 1000;
         for (int i = 0; i < nums; i++)
         {
             _fasterKv.Set($"big_data_{i}", new Data
@@ -178,7 +178,7 @@ public class FasterKvStoreTest
     [Fact]
     public async Task SetAsync_Big_DataSize_Should_Success()
     {
-        int nums = 10000;
+        int nums = 1000;
         for (int i = 0; i < nums; i++)
         {
             await _fasterKv.SetAsync($"big_data_{i}", new Data

@@ -14,26 +14,24 @@ public class FasterKvCacheDiTest
         var services = new ServiceCollection();
         services.AddFasterKvCache(options =>
         {
+            // use MessagePack serializer
             options.UseMessagePackSerializer();
-        },"MyKvCache");
+        }, "MyKvCache");
         var provider = services.BuildServiceProvider();
 
         var cache = provider.GetService<FasterKvCache>();
         Assert.NotNull(cache);
-        
-        cache!.Set("abc","abc");
+
+        cache!.Set("abc", "abc");
         var result = cache.Get<string>("abc");
         Assert.Equal("abc", result);
     }
-    
+
     [Fact]
     public void Use_MessagePackSerializer_Create_FasterKvCacheTValue_Should_Success()
     {
         var services = new ServiceCollection();
-        services.AddFasterKvCache<Data>(options =>
-        {
-            options.UseMessagePackSerializer();
-        },"MyKvCache");
+        services.AddFasterKvCache<Data>(options => { options.UseMessagePackSerializer(); }, "MyKvCache");
         var provider = services.BuildServiceProvider();
 
         var cache = provider.GetService<FasterKvCache<Data>>();
@@ -44,35 +42,31 @@ public class FasterKvCacheDiTest
             One = "1024",
             Two = 1024
         };
-        cache!.Set("abc",data);
+        cache!.Set("abc", data);
         var result = cache.Get("abc");
         Assert.Equal(data, result);
-    }    [Fact]
+    }
+
+    [Fact]
     public void Use_SystemTextJson_Create_FasterKvCache_Should_Success()
     {
         var services = new ServiceCollection();
-        services.AddFasterKvCache(options =>
-        {
-            options.UseSystemTextJsonSerializer();
-        },"MyKvCache");
+        services.AddFasterKvCache(options => { options.UseSystemTextJsonSerializer(); }, "MyKvCache");
         var provider = services.BuildServiceProvider();
 
         var cache = provider.GetService<FasterKvCache>();
         Assert.NotNull(cache);
-        
-        cache!.Set("abc","abc");
+
+        cache!.Set("abc", "abc");
         var result = cache.Get<string>("abc");
         Assert.Equal("abc", result);
     }
-    
+
     [Fact]
     public void Use_SystemTextJson_Create_FasterKvCacheTValue_Should_Success()
     {
         var services = new ServiceCollection();
-        services.AddFasterKvCache<Data>(options =>
-        {
-            options.UseSystemTextJsonSerializer();
-        },"MyKvCache");
+        services.AddFasterKvCache<Data>(options => { options.UseSystemTextJsonSerializer(); }, "MyKvCache");
         var provider = services.BuildServiceProvider();
 
         var cache = provider.GetService<FasterKvCache<Data>>();
@@ -83,7 +77,7 @@ public class FasterKvCacheDiTest
             One = "1024",
             Two = 1024
         };
-        cache!.Set("abc",data);
+        cache!.Set("abc", data);
         var result = cache.Get("abc");
         Assert.Equal(data, result);
     }

@@ -40,7 +40,7 @@ public class FasterKvCacheOptions
     /// <summary>
     /// FasterKv read cache page size
     /// </summary>
-    /// <para>Default: 16MB</para>
+    /// <para>Default: 1MB</para>
     public int ReadCachePageSizeBit { get; set; } = 20;
 
     /// <summary>

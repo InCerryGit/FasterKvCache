@@ -24,8 +24,14 @@ public class FasterKvStoreTestExpiry
             new DefaultSystemClock(),
             new FasterKvCacheOptions
             {
+                IndexCount = 16384,
+                MemorySizeBit = 10,
+                PageSizeBit = 10,
+                ReadCacheMemorySizeBit = 10,
+                ReadCachePageSizeBit = 10,
                 SerializerName = "MessagePack",
-                ExpiryKeyScanInterval = TimeSpan.FromSeconds(1)
+                ExpiryKeyScanInterval = TimeSpan.FromSeconds(1),
+                LogPath = "./unit-test/faster-kv-store-expiry-test"
             },
             new IFasterKvCacheSerializer[]
             {

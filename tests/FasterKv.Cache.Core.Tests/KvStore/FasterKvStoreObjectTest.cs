@@ -31,7 +31,8 @@ public class FasterKvStoreObjectTest
                 MemorySizeBit = 10,
                 PageSizeBit = 10,
                 ReadCacheMemorySizeBit = 10,
-                ReadCachePageSizeBit = 10
+                ReadCachePageSizeBit = 10,
+                LogPath = "./unit-test/faster-kv-store-object-test"
             },
             new IFasterKvCacheSerializer[]
             {

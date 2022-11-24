@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FasterKv.Cache.Core;
+namespace FasterKv.Cache.Core.Abstractions;
 
 public interface ISystemClock
 {

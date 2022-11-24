@@ -1,13 +1,10 @@
-﻿using System.IO;
+﻿using System.Buffers;
 using FASTER.core;
-using MessagePack;
 
 namespace FasterKv.Cache.Core.Serializers;
 
-public class FasterKvSerializer : IObjectSerializer<ValueWrapper>
+internal sealed class FasterKvSerializer : BinaryObjectSerializer<ValueWrapper>
 {
-    private Stream? _read;
-    private Stream? _write;
     private readonly IFasterKvCacheSerializer _serializer;
 
     public FasterKvSerializer(IFasterKvCacheSerializer serializer)
@@ -15,32 +12,42 @@ public class FasterKvSerializer : IObjectSerializer<ValueWrapper>
         _serializer = serializer.ArgumentNotNull();
     }
 
-    public void BeginSerialize(Stream stream)
+    public override void Deserialize(out ValueWrapper obj)
     {
-        _write = stream;
+        obj = new ValueWrapper();
+        var etNullFlag = reader.ReadByte();
+        if (etNullFlag == 1)
+        {
+            obj.ExpiryTime = reader.ReadInt64();
+        }
+
+        obj.DataByteLength = reader.ReadInt32();
+        obj.DataBytes = ArrayPool<byte>.Shared.Rent(obj.DataByteLength);
+        _ = reader.Read(obj.DataBytes, 0, obj.DataByteLength);
     }
 
-    public void Serialize(ref ValueWrapper obj)
+    public override void Serialize(ref ValueWrapper obj)
     {
-        obj.DataBytes = _serializer.Serialize(obj.Data);
-        MessagePackSerializer.Serialize(_write, obj);
-    }
+        if (obj.ExpiryTime is null)
+        {
+            // write Expiry Time is null flag
+            writer.Write((byte)0);
+        }
+        else
+        {
+            writer.Write((byte)1);
+            writer.Write(obj.ExpiryTime.Value);
+        }
 
-    public void BeginDeserialize(Stream stream)
-    {
-        _read = stream;
-    }
+        var beforePos = writer.BaseStream.Position;
+        var dataPos = writer.BaseStream.Position = writer.BaseStream.Position += sizeof(int);
+        _serializer.Serialize(writer.BaseStream, obj.Data);
+        var afterPos = writer.BaseStream.Position;
 
-    public void Deserialize(out ValueWrapper obj)
-    {
-        obj = MessagePackSerializer.Deserialize<ValueWrapper>(_read);
-    }
+        var length = (int)(afterPos - dataPos);
+        writer.BaseStream.Position = beforePos;
 
-    public void EndSerialize()
-    {
-    }
-
-    public void EndDeserialize()
-    {
+        writer.Write(length);
+        writer.BaseStream.Position = afterPos;
     }
 }

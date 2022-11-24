@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using FASTER.core;
-using FasterKv.Cache.Core.Abstractions;
 
-namespace FasterKv.Cache.Core;
+namespace FasterKv.Cache.Core.Abstractions;
 
-public class ClientSessionWrap<TValue> : IDisposable
+internal sealed class ClientSessionWrap<TValue> : IDisposable
 {
     public ClientSession<string, ValueWrapper<TValue>, ValueWrapper<TValue>, ValueWrapper<TValue>,
         StoreContext<ValueWrapper<TValue>>, StoreFunctions<string, ValueWrapper<TValue>>> Session { get; }
@@ -31,7 +30,7 @@ public class ClientSessionWrap<TValue> : IDisposable
     }
 }
 
-public class ClientSessionWrap : IDisposable
+internal class ClientSessionWrap : IDisposable
 {
     public ClientSession<string, ValueWrapper, ValueWrapper, ValueWrapper,
         StoreContext<ValueWrapper>, StoreFunctions<string, ValueWrapper>> Session { get; }

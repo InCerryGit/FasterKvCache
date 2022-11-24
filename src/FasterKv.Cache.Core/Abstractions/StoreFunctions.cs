@@ -2,7 +2,7 @@
 
 namespace FasterKv.Cache.Core.Abstractions;
 
-public class StoreContext<TOutput>
+internal sealed class StoreContext<TOutput>
 {
     private Status _status;
     private TOutput? _output;
@@ -20,7 +20,7 @@ public class StoreContext<TOutput>
     }
 }
 
-public class StoreFunctions<TKey, TOutput> : SimpleFunctions<TKey, TOutput, StoreContext<TOutput>>
+internal sealed class StoreFunctions<TKey, TOutput> : SimpleFunctions<TKey, TOutput, StoreContext<TOutput>>
 {
     public override void ReadCompletionCallback(ref TKey key,
         ref TOutput input,

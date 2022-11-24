@@ -22,7 +22,7 @@ public enum TestType
 #nullable disable
 public class FasterKvBenchmark
 {
-    private const long Count = 1000;
+    private const long Count = 10000;
     private static readonly Random _random = new Random(1024);
     private FasterKvCache<string> _provider;
     private static readonly TimeSpan _default = TimeSpan.FromSeconds(30);

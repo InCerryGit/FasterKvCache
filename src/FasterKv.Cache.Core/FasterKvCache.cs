@@ -175,7 +175,12 @@ public sealed class FasterKvCache : IDisposable
     private async Task SetInternalAsync<TValue>(ClientSessionWrap sessionWrap, string key, TValue? value,
         CancellationToken cancellationToken, TimeSpan? expiryTime = null)
     {
-        var wrapper = new ValueWrapper(value, expiryTime.HasValue ? _systemClock.Now().Add(expiryTime.Value) : null);
+        var wrapper = new ValueWrapper(value,
+            expiryTime.HasValue
+                ? _systemClock.Now()
+                    .Add(expiryTime.Value)
+                    .ToUnixTimeMilliseconds()
+                : null);
         (await sessionWrap.Session.UpsertAsync(ref key, ref wrapper, token: cancellationToken)
             .ConfigureAwait(false)).Complete();
     }
@@ -184,7 +189,11 @@ public sealed class FasterKvCache : IDisposable
         TimeSpan? expiryTime = null)
     {
         var wrapper = new ValueWrapper(value,
-            expiryTime.HasValue ? _systemClock.Now().Add(expiryTime.Value) : null);
+            expiryTime.HasValue
+                ? _systemClock.Now()
+                    .Add(expiryTime.Value)
+                    .ToUnixTimeMilliseconds()
+                : null);
         sessionWrap.Session.Upsert(ref key, ref wrapper);
     }
 

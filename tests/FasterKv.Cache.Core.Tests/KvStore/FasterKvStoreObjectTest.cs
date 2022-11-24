@@ -1,10 +1,11 @@
-﻿using FasterKv.Cache.Core.Configurations;
+﻿using FasterKv.Cache.Core.Abstractions;
+using FasterKv.Cache.Core.Configurations;
 using FasterKv.Cache.MessagePack;
 using FasterKv.Cache.SystemTextJson;
 
 namespace FasterKv.Cache.Core.Tests.KvStore;
 
-public class FasterKvStoreObjectTest
+public class FasterKvStoreObjectTest : IDisposable
 {
     private readonly FasterKvCache _fasterKv;
 
@@ -175,6 +176,28 @@ public class FasterKvStoreObjectTest
     }
 
     [Fact]
+    public void Set_Big_DataSize_With_ExpiryTime_Should_Success()
+    {
+        int nums = 1000;
+        for (int i = 0; i < nums; i++)
+        {
+            _fasterKv.Set($"big_data_{i}", new Data
+            {
+                One = i.ToString(),
+                Two = i
+            }, TimeSpan.FromMinutes(5));
+        }
+
+        for (int i = 0; i < nums; i++)
+        {
+            var value = _fasterKv.Get<Data>($"big_data_{i}");
+            Assert.NotNull(value);
+            Assert.Equal(i.ToString(), value!.One);
+            Assert.Equal(i, value.Two);
+        }
+    }
+
+    [Fact]
     public void Set_Big_DataSize_And_Repeat_Reading_Should_Success()
     {
         int nums = 1000;
@@ -198,5 +221,29 @@ public class FasterKvStoreObjectTest
         Assert.Equal(0.ToString(), value!.One);
         Assert.Equal(0, value.Two);
     }
-    
+
+    [Fact]
+    public void Set_Big_Value_Should_Success()
+    {
+        // 8MB Value
+        var bigValues = Enumerable.Range(0, 8 * 1024 * 1024).Select(i => (byte) i).ToArray();
+        int nums = 200;
+        for (int i = 0; i < nums; i++)
+        {
+            _fasterKv.Set($"big_value_{i}", bigValues);
+        }
+
+        for (int i = 0; i < nums; i++)
+        {
+            var result = _fasterKv.Get<byte[]>($"big_value_{i}");
+        
+            Assert.NotNull(result);
+            Assert.True(bigValues.SequenceEqual(result!));   
+        }
+    }
+
+    public void Dispose()
+    {
+        _fasterKv.Dispose();
+    }
 }

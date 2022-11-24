@@ -1,17 +1,20 @@
-﻿using FasterKv.Cache.Core;
+﻿using System;
+using System.IO;
+using FasterKv.Cache.Core;
 
 namespace FasterKv.Cache.SystemTextJson;
 
-public class SystemTextJsonFasterKvCacheSerializer : IFasterKvCacheSerializer
+public sealed class SystemTextJsonFasterKvCacheSerializer : IFasterKvCacheSerializer
 {
     public string Name { get; set; } = "SystemTextJson";
-    public byte[] Serialize<TValue>(TValue data)
+
+    public void Serialize<TValue>(Stream stream, TValue data)
     {
-        return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(data);
+        System.Text.Json.JsonSerializer.Serialize(stream, data);
     }
 
-    public TValue? Deserialize<TValue>(byte[] serializerData)
+    public TValue? Deserialize<TValue>(byte[] serializerData, int length)
     {
-        return System.Text.Json.JsonSerializer.Deserialize<TValue>(serializerData);
+        return System.Text.Json.JsonSerializer.Deserialize<TValue>(new Span<byte>(serializerData,0, length));
     }
 }

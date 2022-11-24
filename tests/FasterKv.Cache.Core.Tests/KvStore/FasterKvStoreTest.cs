@@ -1,11 +1,12 @@
-﻿using FasterKv.Cache.Core.Configurations;
+﻿using FasterKv.Cache.Core.Abstractions;
+using FasterKv.Cache.Core.Configurations;
 using FasterKv.Cache.MessagePack;
 using FasterKv.Cache.SystemTextJson;
 using MessagePack;
 
 namespace FasterKv.Cache.Core.Tests.KvStore;
 
-public class FasterKvStoreTest
+public class FasterKvStoreTest : IDisposable
 {
     private readonly FasterKvCache<Data> _fasterKv;
 
@@ -198,6 +199,85 @@ public class FasterKvStoreTest
         }
     }
     
+    [Fact]
+    public void Set_Big_DataSize_With_ExpiryTime_Should_Success()
+    {
+        int nums = 1000;
+        for (int i = 0; i < nums; i++)
+        {
+            _fasterKv.Set($"big_data_{i}", new Data
+            {
+                One = i.ToString(),
+                Two = i
+            }, TimeSpan.FromMinutes(5));
+        }
+
+        for (int i = 0; i < nums; i++)
+        {
+            var value = _fasterKv.Get($"big_data_{i}");
+            Assert.NotNull(value);
+            Assert.Equal(i.ToString(), value!.One);
+            Assert.Equal(i, value.Two);
+        }
+    }
+
+    [Fact]
+    public void Set_Big_DataSize_And_Repeat_Reading_Should_Success()
+    {
+        int nums = 1000;
+        for (int i = 0; i < nums; i++)
+        {
+            _fasterKv.Set($"big_value_{i}", new Data
+            {
+                One = i.ToString(),
+                Two = i
+            });
+        }
+        
+        var value = _fasterKv.Get($"big_value_{0}");
+        Assert.NotNull(value);
+        Assert.Equal(0.ToString(), value!.One);
+        Assert.Equal(0, value.Two);
+
+
+        value = _fasterKv.Get($"big_value_{0}");
+        Assert.NotNull(value);
+        Assert.Equal(0.ToString(), value!.One);
+        Assert.Equal(0, value.Two);
+    }
+
+    [Fact]
+    public void Set_Big_Value_Should_Success()
+    {
+        // 4MB value
+        var bigValues = Enumerable.Range(0, 4 * 1024 * 1024).Select(i => (byte) i).ToArray();
+        
+        int nums = 200;
+        for (int i = 0; i < nums; i++)
+        {
+            _fasterKv.Set($"big_value_{i}", new Data
+            {
+                One = i.ToString(),
+                Two = i,
+                Three = bigValues
+            });
+        }
+
+        for (int i = 0; i < nums; i++)
+        {
+            var result = _fasterKv.Get($"big_value_{i}");
+        
+            Assert.NotNull(result?.Three);
+            Assert.Equal(i.ToString(), result!.One);
+            Assert.Equal(i, result.Two);
+            Assert.True(bigValues.SequenceEqual(result.Three!));   
+        }
+    }
+
+    public void Dispose()
+    {
+        _fasterKv.Dispose();
+    }
 }
 
 [MessagePackObject]
@@ -206,6 +286,8 @@ public class Data
     [Key(0)] public string? One { get; set; }
 
     [Key(1)] public long Two { get; set; }
+    
+    [Key(2)] public byte[]? Three { get; set; }
 
     public override bool Equals(object? obj)
     {

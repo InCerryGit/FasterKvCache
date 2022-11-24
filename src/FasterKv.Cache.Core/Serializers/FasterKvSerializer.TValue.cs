@@ -1,14 +1,10 @@
-﻿using System;
-using System.IO;
+﻿using System.Buffers;
 using FASTER.core;
-using MessagePack;
 
 namespace FasterKv.Cache.Core.Serializers;
 
-public class FasterKvSerializer<TValue> : IObjectSerializer<ValueWrapper<TValue>>
+internal sealed class FasterKvSerializer<TValue> : BinaryObjectSerializer<ValueWrapper<TValue>>
 {
-    private Stream? _read;
-    private Stream? _write;
     private readonly IFasterKvCacheSerializer _serializer;
 
     public FasterKvSerializer(IFasterKvCacheSerializer serializer)
@@ -16,50 +12,50 @@ public class FasterKvSerializer<TValue> : IObjectSerializer<ValueWrapper<TValue>
         _serializer = serializer.ArgumentNotNull();
     }
 
-    public void BeginSerialize(Stream stream)
+    public override void Deserialize(out ValueWrapper<TValue> obj)
     {
-        _write = stream;
-    }
-
-    public void Serialize(ref ValueWrapper<TValue> obj)
-    {
-        var pack = new DataPack
+        obj = new ValueWrapper<TValue>();
+        var etNullFlag = reader.ReadByte();
+        if (etNullFlag == 1)
         {
-            ExpiryTime = obj.ExpiryTime,
-            SerializerData = _serializer.Serialize(obj.Data)
-        };
-        MessagePackSerializer.Serialize(_write, pack);
+            obj.ExpiryTime = reader.ReadInt64();
+        }
+
+        var dataLength = reader.ReadInt32();
+        var buffer = ArrayPool<byte>.Shared.Rent(dataLength);
+        try
+        {
+            _ = reader.Read(buffer, 0, dataLength);
+            obj.Data = _serializer.Deserialize<TValue>(buffer, dataLength);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
     }
 
-    public void BeginDeserialize(Stream stream)
+    public override void Serialize(ref ValueWrapper<TValue> obj)
     {
-        _read = stream;
-    }
+        if (obj.ExpiryTime is null)
+        {
+            // write Expiry Time is null flag
+            writer.Write((byte)0);
+        }
+        else
+        {
+            writer.Write((byte)1);
+            writer.Write(obj.ExpiryTime.Value);
+        }
 
-    public void Deserialize(out ValueWrapper<TValue> obj)
-    {
-        var pack = MessagePackSerializer.Deserialize<DataPack>(_read);
-        obj = new ValueWrapper<TValue>(_serializer.Deserialize<TValue>(pack.SerializerData), pack.ExpiryTime);
-    }
+        var beforePos = writer.BaseStream.Position;
+        var dataPos = writer.BaseStream.Position = writer.BaseStream.Position += sizeof(int);
+        _serializer.Serialize(writer.BaseStream, obj.Data);
+        var afterPos = writer.BaseStream.Position;
 
-    public void EndSerialize()
-    {
-    }
+        var length = (int)(afterPos - dataPos);
+        writer.BaseStream.Position = beforePos;
 
-    public void EndDeserialize()
-    {
-    }
-    
-    [MessagePackObject]
-    public struct DataPack
-    {    
-        /// <summary>
-        /// Expiry Time
-        /// </summary>
-        [Key(0)]
-        public DateTimeOffset? ExpiryTime { get; set; }
-
-        [Key(1)]
-        public byte[] SerializerData { get; set; }
+        writer.Write(length);
+        writer.BaseStream.Position = afterPos;
     }
 }

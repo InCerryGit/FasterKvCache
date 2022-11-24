@@ -1,16 +1,16 @@
 ﻿using System;
-using MessagePack;
+using System.Buffers;
 
 namespace FasterKv.Cache.Core;
 
-public struct ValueWrapper<T>
+internal struct ValueWrapper<T>
 {
     public ValueWrapper()
     {
         
     }
 
-    public ValueWrapper(T? data, DateTimeOffset? expiryTime = null)
+    public ValueWrapper(T? data, long? expiryTime = null)
     {
         ExpiryTime = expiryTime;
         Data = data;
@@ -24,19 +24,19 @@ public struct ValueWrapper<T>
     /// <summary>
     /// Expiry Time
     /// </summary>
-    public DateTimeOffset? ExpiryTime { get; set; }
+    public long? ExpiryTime { get; set; }
     
     /// <summary>
     /// HasExpired
     /// </summary>
     /// <param name="now">Now</param>
     /// <returns>value has expired</returns>
-    public bool HasExpired(DateTimeOffset now) => now > ExpiryTime;
+    public bool HasExpired(DateTimeOffset now) => now.ToUnixTimeMilliseconds() > ExpiryTime;
 }
 
-[MessagePackObject]
-public class ValueWrapper
+internal sealed class ValueWrapper
 {
+    internal int DataByteLength = 0;
     internal object? Data;
 
     public ValueWrapper()
@@ -44,7 +44,7 @@ public class ValueWrapper
         
     }
 
-    public ValueWrapper(object? data, DateTimeOffset? expiryTime = null)
+    public ValueWrapper(object? data, long? expiryTime = null)
     {
         ExpiryTime = expiryTime;
         Data = data;
@@ -53,13 +53,11 @@ public class ValueWrapper
     /// <summary>
     /// Expiry Time
     /// </summary>
-    [Key(0)]
-    public DateTimeOffset? ExpiryTime { get; set; }
+    public long? ExpiryTime { get; set; }
     
     /// <summary>
     /// DataBytes
     /// </summary>
-    [Key(1)]
     public byte[]? DataBytes { get; set; }
     
     /// <summary>
@@ -67,7 +65,7 @@ public class ValueWrapper
     /// </summary>
     /// <param name="now">Now</param>
     /// <returns>value has expired</returns>
-    public bool HasExpired(DateTimeOffset now) => now > ExpiryTime;
+    public bool HasExpired(DateTimeOffset now) => now.ToUnixTimeMilliseconds() > ExpiryTime;
 
     /// <summary>
     /// Get TValue From Data or DataBytes
@@ -79,8 +77,11 @@ public class ValueWrapper
     {
         if (DataBytes is not null)
         {
-            Data = serializer.Deserialize<TValue>(DataBytes);
+            Data = serializer.Deserialize<TValue>(DataBytes, DataByteLength);
+            var bytes = DataBytes;
             DataBytes = null;
+            DataByteLength = 0;
+            ArrayPool<byte>.Shared.Return(bytes);
         }
 
         return Data is null ? default : (TValue)Data;

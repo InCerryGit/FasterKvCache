@@ -171,7 +171,7 @@ public sealed class FasterKvCache<TValue> : IDisposable
         TimeSpan? expiryTime = null)
     {
         var wrapper = new ValueWrapper<TValue>(value,
-            expiryTime.HasValue ? _systemClock.Now().Add(expiryTime.Value) : null);
+            expiryTime.HasValue ? _systemClock.Now().Add(expiryTime.Value).ToUnixTimeMilliseconds() : null);
         sessionWrap.Session.Upsert(ref key, ref wrapper);
     }
 
@@ -179,7 +179,7 @@ public sealed class FasterKvCache<TValue> : IDisposable
         CancellationToken cancellationToken, TimeSpan? expiryTime = null)
     {
         var wrapper = new ValueWrapper<TValue>(value,
-            expiryTime.HasValue ? _systemClock.Now().Add(expiryTime.Value) : null);
+            expiryTime.HasValue ? _systemClock.Now().Add(expiryTime.Value).ToUnixTimeMilliseconds() : null);
         (await sessionWrap.Session.UpsertAsync(ref key, ref wrapper, token: cancellationToken)
                 .ConfigureAwait(false)).Complete();
     }

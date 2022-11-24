@@ -1,8 +1,8 @@
 ﻿using FASTER.core;
 
-namespace FasterKv.Cache.Core;
+namespace FasterKv.Cache.Core.Serializers;
 
-public class StringSerializer : BinaryObjectSerializer<string>
+internal sealed class StringSerializer : BinaryObjectSerializer<string>
 {
     public override void Deserialize(out string obj)
     {

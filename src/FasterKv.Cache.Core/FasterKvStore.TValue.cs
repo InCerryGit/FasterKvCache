@@ -50,7 +50,7 @@ public sealed class FasterKvCache<TValue> : IDisposable
             var serializer = new SerializerSettings<string, ValueWrapper<TValue>>
             {
                 keySerializer = () => new StringSerializer(),
-                valueSerializer = () => new FasterKvSerializer<TValue>(valueSerializer)
+                valueSerializer = () => new FasterKvSerializer<TValue>(valueSerializer, _systemClock)
             };
 
             _logSettings = options.GetLogSettings(name);
@@ -88,7 +88,7 @@ public sealed class FasterKvCache<TValue> : IDisposable
             context.FinalizeRead(out result.status, out result.output);
         }
 
-        if (result.output.HasExpired(_systemClock.Now()))
+        if (result.output.HasExpired(_systemClock.NowUnixTimestamp()))
         {
             Delete(key);
             return default;
@@ -133,7 +133,7 @@ public sealed class FasterKvCache<TValue> : IDisposable
         using var scopeSession = GetSessionWrap();
         var result = (await scopeSession.Session.ReadAsync(ref key, token: token)).Complete();
 
-        if (result.output.HasExpired(_systemClock.Now()))
+        if (result.output.HasExpired(_systemClock.NowUnixTimestamp()))
         {
             await DeleteAsync(key, token);
             return default;
@@ -220,7 +220,7 @@ public sealed class FasterKvCache<TValue> : IDisposable
                         context.FinalizeRead(out result.status, out result.output);
                     }
 
-                    if (result.status.Found && result.output.HasExpired(_systemClock.Now()))
+                    if (result.status.Found && result.output.HasExpired(_systemClock.NowUnixTimestamp()))
                     {
                         sessionWrap.Session.Delete(key);
                     }

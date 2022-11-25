@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using FasterKv.Cache.Core.Serializers;
 
 namespace FasterKv.Cache.Core;
 
@@ -29,9 +30,31 @@ internal struct ValueWrapper<T>
     /// <summary>
     /// HasExpired
     /// </summary>
-    /// <param name="now">Now</param>
+    /// <param name="nowTimestamp">Now</param>
     /// <returns>value has expired</returns>
-    public bool HasExpired(DateTimeOffset now) => now.ToUnixTimeMilliseconds() > ExpiryTime;
+    public bool HasExpired(long nowTimestamp) => nowTimestamp > ExpiryTime;
+
+    /// <summary>
+    /// Get FasterKvSerializerFlags
+    /// </summary>
+    /// <param name="nowTimestamp"></param>
+    /// <returns></returns>
+    internal FasterKvSerializerFlags GetFlags(long nowTimestamp)
+    {
+        var flags = FasterKvSerializerFlags.None;
+        if (ExpiryTime is not null)
+        {
+            flags |= FasterKvSerializerFlags.HasExpiryTime;
+        }
+
+        // don't serializer expired value body
+        if (Data is not null && HasExpired(nowTimestamp) == false)
+        {
+            flags |= FasterKvSerializerFlags.HasBody;
+        }
+
+        return flags;
+    }
 }
 
 internal sealed class ValueWrapper
@@ -63,9 +86,31 @@ internal sealed class ValueWrapper
     /// <summary>
     /// HasExpired
     /// </summary>
-    /// <param name="now">Now</param>
+    /// <param name="nowTimestamp">Now</param>
     /// <returns>value has expired</returns>
-    public bool HasExpired(DateTimeOffset now) => now.ToUnixTimeMilliseconds() > ExpiryTime;
+    public bool HasExpired(long nowTimestamp) => nowTimestamp > ExpiryTime;
+
+    /// <summary>
+    /// Get FasterKvSerializerFlags
+    /// </summary>
+    /// <param name="nowTimestamp"></param>
+    /// <returns></returns>
+    internal FasterKvSerializerFlags GetFlags(long nowTimestamp)
+    {
+        var flags = FasterKvSerializerFlags.None;
+        if (ExpiryTime is not null)
+        {
+            flags |= FasterKvSerializerFlags.HasExpiryTime;
+        }
+
+        // don't serializer expired value body
+        if (Data is not null && HasExpired(nowTimestamp) == false)
+        {
+            flags |= FasterKvSerializerFlags.HasBody;
+        }
+
+        return flags;
+    }
 
     /// <summary>
     /// Get TValue From Data or DataBytes

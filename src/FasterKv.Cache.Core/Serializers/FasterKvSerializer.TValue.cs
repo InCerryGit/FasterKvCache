@@ -1,61 +1,74 @@
 ﻿using System.Buffers;
 using FASTER.core;
+using FasterKv.Cache.Core.Abstractions;
 
 namespace FasterKv.Cache.Core.Serializers;
 
 internal sealed class FasterKvSerializer<TValue> : BinaryObjectSerializer<ValueWrapper<TValue>>
 {
+    private readonly ISystemClock _systemClock;
     private readonly IFasterKvCacheSerializer _serializer;
 
-    public FasterKvSerializer(IFasterKvCacheSerializer serializer)
+    public FasterKvSerializer(IFasterKvCacheSerializer serializer, ISystemClock systemClock)
     {
         _serializer = serializer.ArgumentNotNull();
+        _systemClock = systemClock.ArgumentNotNull();
     }
 
     public override void Deserialize(out ValueWrapper<TValue> obj)
     {
         obj = new ValueWrapper<TValue>();
-        var etNullFlag = reader.ReadByte();
-        if (etNullFlag == 1)
+        var flags = (FasterKvSerializerFlags)reader.ReadByte();
+        if ((flags & FasterKvSerializerFlags.HasExpiryTime) == FasterKvSerializerFlags.HasExpiryTime)
         {
             obj.ExpiryTime = reader.ReadInt64();
         }
 
-        var dataLength = reader.ReadInt32();
-        var buffer = ArrayPool<byte>.Shared.Rent(dataLength);
-        try
+        if ((flags & FasterKvSerializerFlags.HasBody) == FasterKvSerializerFlags.HasBody)
         {
-            _ = reader.Read(buffer, 0, dataLength);
-            obj.Data = _serializer.Deserialize<TValue>(buffer, dataLength);
+            var dataLength = reader.ReadInt32();
+            if (obj.HasExpired(_systemClock.NowUnixTimestamp()))
+            {
+                reader.BaseStream.Position += dataLength;
+            }
+            else
+            {
+                var buffer = ArrayPool<byte>.Shared.Rent(dataLength);
+                try
+                {
+                    _ = reader.Read(buffer, 0, dataLength);
+                    obj.Data = _serializer.Deserialize<TValue>(buffer, dataLength);
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(buffer);
+                }
+            }
         }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
+        
     }
 
     public override void Serialize(ref ValueWrapper<TValue> obj)
     {
-        if (obj.ExpiryTime is null)
+        var flags = obj.GetFlags(_systemClock.NowUnixTimestamp());
+        writer.Write((byte)flags);
+        if ((flags & FasterKvSerializerFlags.HasExpiryTime) == FasterKvSerializerFlags.HasExpiryTime)
         {
-            // write Expiry Time is null flag
-            writer.Write((byte)0);
-        }
-        else
-        {
-            writer.Write((byte)1);
-            writer.Write(obj.ExpiryTime.Value);
+            writer.Write(obj.ExpiryTime!.Value);
         }
 
-        var beforePos = writer.BaseStream.Position;
-        var dataPos = writer.BaseStream.Position = writer.BaseStream.Position += sizeof(int);
-        _serializer.Serialize(writer.BaseStream, obj.Data);
-        var afterPos = writer.BaseStream.Position;
+        if ((flags & FasterKvSerializerFlags.HasBody) == FasterKvSerializerFlags.HasBody)
+        {
+            var beforePos = writer.BaseStream.Position;
+            var dataPos = writer.BaseStream.Position = writer.BaseStream.Position += sizeof(int);
+            _serializer.Serialize(writer.BaseStream, obj.Data);
+            var afterPos = writer.BaseStream.Position;
 
-        var length = (int)(afterPos - dataPos);
-        writer.BaseStream.Position = beforePos;
+            var length = (int)(afterPos - dataPos);
+            writer.BaseStream.Position = beforePos;
 
-        writer.Write(length);
-        writer.BaseStream.Position = afterPos;
+            writer.Write(length);
+            writer.BaseStream.Position = afterPos;
+        }
     }
 }

@@ -37,6 +37,6 @@ jobs:
       run: |
         dotnet build --configuration Release /home/runner/work/FasterKvCache/FasterKvCache/FasterKv.Cache.sln
    
-    - name: Run tests on net6.0
+    - name: Run tests on net7.0
       run: |
-        dotnet test --framework=net6.0 /home/runner/work/FasterKvCache/FasterKvCache/tests/FasterKv.Cache.Core.Tests/FasterKv.Cache.Core.Tests.csproj
+        dotnet test --framework=net7.0 /home/runner/work/FasterKvCache/FasterKvCache/tests/FasterKv.Cache.Core.Tests/FasterKv.Cache.Core.Tests.csproj

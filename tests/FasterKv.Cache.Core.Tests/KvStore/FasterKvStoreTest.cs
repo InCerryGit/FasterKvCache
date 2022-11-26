@@ -273,6 +273,61 @@ public class FasterKvStoreTest : IDisposable
             Assert.True(bigValues.SequenceEqual(result.Three!));   
         }
     }
+    
+        
+    [Fact]
+    public void Set_Big_DataSize_With_Expired_Should_Return_Null()
+    {
+        int nums = 1000;
+        for (int i = 0; i < nums; i++)
+        {
+            _fasterKv.Set($"Set_Big_DataSize_With_Expired_Should_Return_Null_{i}", new Data
+            {
+                One = i.ToString(),
+                Two = i
+            }, TimeSpan.FromSeconds(1));
+        }
+        
+        Thread.Sleep(1000);
+
+        for (int i = 0; i < nums; i++)
+        {
+            var value = _fasterKv.Get($"Set_Big_DataSize_With_Expired_Should_Return_Null_{i}");
+            Assert.Null(value);
+        }
+    }
+    
+    [Fact]
+    public void Set_Big_DataSize_With_Random_Expired_Should_Success()
+    {
+        int nums = 1000;
+        for (int i = 0; i < nums; i++)
+        {
+            _fasterKv.Set($"Set_Big_DataSize_With_Random_Expired_Should_Success_{i}", new Data
+            {
+                One = i.ToString(),
+                Two = i
+            }, i % 2 == 0 ? TimeSpan.FromSeconds(1) : TimeSpan.FromMinutes(1));
+        }
+        
+        Thread.Sleep(1000);
+
+        for (int i = 0; i < nums; i++)
+        {
+            var value = _fasterKv.Get($"Set_Big_DataSize_With_Random_Expired_Should_Success_{i}");
+            if (i % 2 == 0)
+            {
+                Assert.Null(value);   
+            }
+            else
+            {
+                Assert.NotNull(value);
+                Assert.NotNull(value);
+                Assert.Equal(i.ToString(), value!.One);
+                Assert.Equal(i, value.Two);
+            }
+        }
+    }
 
     public void Dispose()
     {

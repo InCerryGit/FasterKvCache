@@ -52,7 +52,7 @@ public sealed class FasterKvCache : IDisposable
             var serializer = new SerializerSettings<string, ValueWrapper>
             {
                 keySerializer = () => new StringSerializer(),
-                valueSerializer = () => new FasterKvSerializer(_valueSerializer)
+                valueSerializer = () => new FasterKvSerializer(_valueSerializer, _systemClock)
             };
 
             _logSettings = options.GetLogSettings(name);
@@ -95,7 +95,7 @@ public sealed class FasterKvCache : IDisposable
             return default;
         }
 
-        if (result.output.HasExpired(_systemClock.Now()))
+        if (result.output.HasExpired(_systemClock.NowUnixTimestamp()))
         {
             Delete(key);
             return default;
@@ -139,7 +139,7 @@ public sealed class FasterKvCache : IDisposable
             return default;
         }
 
-        if (result.output.HasExpired(_systemClock.Now()))
+        if (result.output.HasExpired(_systemClock.NowUnixTimestamp()))
         {
             await DeleteAsync(key, token);
             return default;
@@ -234,7 +234,7 @@ public sealed class FasterKvCache : IDisposable
                         context.FinalizeRead(out result.status, out result.output);
                     }
 
-                    if (result.status.Found && result.output.HasExpired(_systemClock.Now()))
+                    if (result.status.Found && result.output.HasExpired(_systemClock.NowUnixTimestamp()))
                     {
                         sessionWrap.Session.Delete(key);
                     }

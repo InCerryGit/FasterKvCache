@@ -48,7 +48,7 @@ public class FasterKvCacheOptions
     /// </summary>
     /// <para>Default: {CurrentDirectory}/FasterKvCache/{Environment.ProcessId}-HLog </para>
     public string LogPath { get; set; } =
-#if (NET6_0 || NET7_0)
+#if NET6_0_OR_GREATER
             Path.Combine(Environment.CurrentDirectory, $"FasterKvCache/{Environment.ProcessId}-HLog");
 #else
         Path.Combine(Environment.CurrentDirectory,

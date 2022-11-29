@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-#if (NET6_0 || NET7_0)
+#if NET6_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
 #endif
 
@@ -18,11 +18,11 @@ public static class Guards
     /// <exception cref="ArgumentNullException"></exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ArgumentNotNull<T>(
-#if (NET6_0 || NET7)
+#if NET6_0_OR_GREATER
         [NotNull]
 #endif
         this T? obj,
-#if (NET6_0 || NET7)
+#if NET6_0_OR_GREATER
         [CallerArgumentExpression(nameof(obj))]
 #endif
         string? name = null)
@@ -38,11 +38,11 @@ public static class Guards
     /// <exception cref="ArgumentNullException"></exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ArgumentNotNullOrEmpty(
-#if (NET6_0 || NET7)
+#if NET6_0_OR_GREATER
         [NotNull]
 #endif
         this string? obj,
-#if (NET6_0 || NET7)
+#if NET6_0_OR_GREATER
         [CallerArgumentExpression(nameof(obj))]
 #endif
         string? name = null)
@@ -55,7 +55,7 @@ public static class Guards
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNullOrEmpty(
-#if (NET6_0 || NET7_0)
+#if NET6_0_OR_GREATER
         [NotNullWhen(false)]
 #endif
         this string? str)
@@ -68,7 +68,7 @@ public static class Guards
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool NotNullOrEmpty(
-#if (NET6_0 || NET7_0)
+#if NET6_0_OR_GREATER
         [NotNullWhen(true)]
 #endif
         this string? str)

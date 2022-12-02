@@ -37,13 +37,13 @@ public sealed class FasterKvCache : IDisposable
         ILoggerFactory? loggerFactory)
     {
         _name = name;
-        _systemClock = systemClock.ArgumentNotNull(nameof(_systemClock));
-        _options = options.ArgumentNotNull(nameof(options));
+        _systemClock = systemClock.ArgumentNotNull();
+        _options = options.ArgumentNotNull();
         _logger = loggerFactory?.CreateLogger<FasterKvCache>();
 
         var serializerName = name.NotNullOrEmpty() ? name : options!.SerializerName;
         // ReSharper disable once PossibleMultipleEnumeration
-        _valueSerializer = serializers.ArgumentNotNull(nameof(serializers))
+        _valueSerializer = serializers.ArgumentNotNull()
                                .FirstOrDefault(s => s.Name == serializerName)
                            ?? throw new InvalidOperationException($"Not found {serializerName} serializer");
 
@@ -79,7 +79,7 @@ public sealed class FasterKvCache : IDisposable
 
     public TValue? Get<TValue>(string key)
     {
-        key.ArgumentNotNullOrEmpty(nameof(key));
+        key.ArgumentNotNullOrEmpty();
 
         using var scopeSession = GetSessionWrap();
         var context = new StoreContext<ValueWrapper>();
@@ -112,7 +112,7 @@ public sealed class FasterKvCache : IDisposable
 
     public void Set<TValue>(string key, TValue? value)
     {
-        key.ArgumentNotNullOrEmpty(nameof(key));
+        key.ArgumentNotNullOrEmpty();
 
         using var sessionWrap = GetSessionWrap();
         SetInternal(sessionWrap, key, value);
@@ -120,8 +120,8 @@ public sealed class FasterKvCache : IDisposable
 
     public void Set<TValue>(string key, TValue value, TimeSpan expiryTime)
     {
-        key.ArgumentNotNullOrEmpty(nameof(key));
-        expiryTime.ArgumentNotNegativeOrZero(nameof(expiryTime));
+        key.ArgumentNotNullOrEmpty();
+        expiryTime.ArgumentNotNegativeOrZero();
 
         using var sessionWrap = GetSessionWrap();
         SetInternal(sessionWrap, key, value, expiryTime);
@@ -129,7 +129,7 @@ public sealed class FasterKvCache : IDisposable
 
     public async Task<TValue?> GetAsync<TValue>(string key, CancellationToken token = default)
     {
-        key.ArgumentNotNullOrEmpty(nameof(key));
+        key.ArgumentNotNullOrEmpty();
 
         using var scopeSession = GetSessionWrap();
         var result = (await scopeSession.Session.ReadAsync(ref key, token: token)).Complete();
@@ -150,7 +150,7 @@ public sealed class FasterKvCache : IDisposable
 
     public async Task DeleteAsync(string key, CancellationToken token = default)
     {
-        key.ArgumentNotNull(nameof(key));
+        key.ArgumentNotNull();
 
         using var scopeSession = GetSessionWrap();
         (await scopeSession.Session.DeleteAsync(ref key, token: token).ConfigureAwait(false)).Complete();
@@ -158,7 +158,7 @@ public sealed class FasterKvCache : IDisposable
 
     public async Task SetAsync<TValue>(string key, TValue? value, CancellationToken token = default)
     {
-        key.ArgumentNotNullOrEmpty(nameof(key));
+        key.ArgumentNotNullOrEmpty();
 
         using var sessionWrap = GetSessionWrap();
         await SetInternalAsync(sessionWrap, key, value, token);
@@ -166,7 +166,7 @@ public sealed class FasterKvCache : IDisposable
 
     public async Task SetAsync<TValue>(string key, TValue? value, TimeSpan expiryTime, CancellationToken token = default)
     {
-        key.ArgumentNotNullOrEmpty(nameof(key));
+        key.ArgumentNotNullOrEmpty();
 
         using var sessionWrap = GetSessionWrap();
         await SetInternalAsync(sessionWrap, key, value, token, expiryTime);

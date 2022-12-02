@@ -12,7 +12,7 @@ public static class FasterKvCacheOptionsExtensions
         this FasterKvCacheOptions options
     )
     {
-        options.ArgumentNotNull(nameof(options));
+        options.ArgumentNotNull();
 
         options.RegisterExtension(new SystemTextJsonFasterKvCacheSerializerExtensionOptions());
         return options;

@@ -4,12 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FasterKv.Cache.SystemTextJson;
 
-public class SystemTextJsonFasterKvCacheSerializerExtensionOptions : IFasterKvCacheExtensionOptions
+public sealed class SystemTextJsonFasterKvCacheSerializerExtensionOptions : IFasterKvCacheExtensionOptions
 {
     public void AddServices(IServiceCollection services, string name)
     {
-        services.ArgumentNotNull(nameof(services));
-        name.ArgumentNotNullOrEmpty(nameof(name));
+        services.ArgumentNotNull();
+        name.ArgumentNotNullOrEmpty();
 
         services.AddSingleton<IFasterKvCacheSerializer>(_ => new SystemTextJsonFasterKvCacheSerializer{Name = name});
     }

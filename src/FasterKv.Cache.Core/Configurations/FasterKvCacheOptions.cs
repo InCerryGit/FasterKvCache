@@ -10,7 +10,7 @@ namespace FasterKv.Cache.Core.Configurations;
 /// FasterKvCacheOptions
 /// for details, see https://microsoft.github.io/FASTER/docs/fasterkv-basics/#fasterkvsettings
 /// </summary>
-public class FasterKvCacheOptions
+public sealed class FasterKvCacheOptions
 {
     /// <summary>
     /// FasterKv index count, Must be power of 2
@@ -86,7 +86,7 @@ public class FasterKvCacheOptions
     /// <param name="extension">Extension.</param>
     public void RegisterExtension(IFasterKvCacheExtensionOptions extension)
     {
-        extension.ArgumentNotNull(nameof(extension));
+        extension.ArgumentNotNull();
 
         Extensions.Add(extension);
     }

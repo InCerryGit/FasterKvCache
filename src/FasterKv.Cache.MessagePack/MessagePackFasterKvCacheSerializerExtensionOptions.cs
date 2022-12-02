@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FasterKv.Cache.MessagePack;
 
-public class MessagePackFasterKvCacheSerializerExtensionOptions : IFasterKvCacheExtensionOptions
+public sealed class MessagePackFasterKvCacheSerializerExtensionOptions : IFasterKvCacheExtensionOptions
 {
     public void AddServices(IServiceCollection services, string name)
     {

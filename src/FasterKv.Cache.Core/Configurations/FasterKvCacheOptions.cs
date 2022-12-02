@@ -86,7 +86,7 @@ public sealed class FasterKvCacheOptions
     /// <param name="extension">Extension.</param>
     public void RegisterExtension(IFasterKvCacheExtensionOptions extension)
     {
-        extension.ArgumentNotNull(nameof(extension));
+        extension.ArgumentNotNull();
 
         Extensions.Add(extension);
     }

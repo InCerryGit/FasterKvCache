@@ -8,8 +8,8 @@ public sealed class MessagePackFasterKvCacheSerializerExtensionOptions : IFaster
 {
     public void AddServices(IServiceCollection services, string name)
     {
-        services.ArgumentNotNull(nameof(services));
-        name.ArgumentNotNullOrEmpty(nameof(name));
+        services.ArgumentNotNull();
+        name.ArgumentNotNullOrEmpty();
 
         services.AddSingleton<IFasterKvCacheSerializer>(_ => new MessagePackFasterKvCacheSerializer {Name = name});
     }

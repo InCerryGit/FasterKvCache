@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
-#if NET6_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
-#endif
+using System.Runtime.CompilerServices;
 
 namespace FasterKv.Cache.Core;
 
@@ -18,13 +16,9 @@ public static class Guards
     /// <exception cref="ArgumentNullException"></exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ArgumentNotNull<T>(
-#if NET6_0_OR_GREATER
         [NotNull]
-#endif
         this T? obj,
-#if NET6_0_OR_GREATER
         [CallerArgumentExpression(nameof(obj))]
-#endif
         string? name = null)
         => obj ?? throw new ArgumentNullException(name);    
     
@@ -38,13 +32,9 @@ public static class Guards
     /// <exception cref="ArgumentNullException"></exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ArgumentNotNullOrEmpty(
-#if NET6_0_OR_GREATER
         [NotNull]
-#endif
         this string? obj,
-#if NET6_0_OR_GREATER
         [CallerArgumentExpression(nameof(obj))]
-#endif
         string? name = null)
         => obj.IsNullOrEmpty() ? throw new ArgumentNullException(name) : obj!;
 
@@ -55,9 +45,7 @@ public static class Guards
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNullOrEmpty(
-#if NET6_0_OR_GREATER
         [NotNullWhen(false)]
-#endif
         this string? str)
         => string.IsNullOrEmpty(str);
 
@@ -68,9 +56,7 @@ public static class Guards
     /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool NotNullOrEmpty(
-#if NET6_0_OR_GREATER
         [NotNullWhen(true)]
-#endif
         this string? str)
         => !string.IsNullOrEmpty(str);
 
@@ -82,6 +68,6 @@ public static class Guards
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TimeSpan ArgumentNotNegativeOrZero(this TimeSpan timeSpan, string? name) =>
+    public static TimeSpan ArgumentNotNegativeOrZero(this TimeSpan timeSpan, [CallerArgumentExpression(nameof(timeSpan))]string? name = null) =>
             timeSpan > TimeSpan.Zero ? timeSpan : throw new ArgumentOutOfRangeException(name);
 }

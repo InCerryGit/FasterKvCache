@@ -21,8 +21,8 @@ public static class ServiceCollectionExtensions
         string name = DefaultFasterKvCacheName
     )
     {
-        services.ArgumentNotNull(nameof(services));
-        setupAction.ArgumentNotNull(nameof(setupAction));
+        services.ArgumentNotNull();
+        setupAction.ArgumentNotNull();
 
         var option = new FasterKvCacheOptions();
         setupAction(option);
@@ -65,8 +65,8 @@ public static class ServiceCollectionExtensions
         string name = DefaultFasterKvCacheTValueName
     )
     {
-        services.ArgumentNotNull(nameof(services));
-        setupAction.ArgumentNotNull(nameof(setupAction));
+        services.ArgumentNotNull();
+        setupAction.ArgumentNotNull();
 
         var option = new FasterKvCacheOptions();
         setupAction(option);

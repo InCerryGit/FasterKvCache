@@ -64,6 +64,10 @@ cache.Set(key, "my cache sync", TimeSpan.FromMinutes(5));
 var result = cache.Get<string>(key);
 Console.WriteLine(result);
 
+// get or add
+result = cache.GetOrAdd(key, () => "my cache sync", TimeSpan.FromMinutes(5));
+Console.WriteLine(result);
+
 // delete
 cache.Delete(key);
 
@@ -73,6 +77,10 @@ await cache.SetAsync(key, "my cache async");
 
 // get
 result = await cache.GetAsync<string>(key);
+Console.WriteLine(result);
+
+// get or add
+result = await cache.GetOrAddAsync(key, () => "my cache async");
 Console.WriteLine(result);
 
 // delete

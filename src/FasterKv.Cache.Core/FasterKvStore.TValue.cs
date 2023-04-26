@@ -97,6 +97,32 @@ public sealed class FasterKvCache<TValue> : IDisposable
         return result.output.Data;
     }
     
+    public TValue GetOrAdd(string key, Func<string,TValue> factory)
+    {
+        key.ArgumentNotNullOrEmpty();
+        
+        var value = Get(key);
+        if (value is not null)
+            return value;
+        
+        value = factory(key);
+        Set(key, value);
+        return value;
+    }
+    
+    public TValue GetOrAdd(string key, Func<string,TValue> factory, TimeSpan expiryTime)
+    {
+        key.ArgumentNotNullOrEmpty();
+        
+        var value = Get(key);
+        if (value is not null)
+            return value;
+        
+        value = factory(key);
+        Set(key, value, expiryTime);
+        return value;
+    }
+
     public void Delete(string key)
     {
         key.ArgumentNotNull();
@@ -141,7 +167,33 @@ public sealed class FasterKvCache<TValue> : IDisposable
 
         return result.output.Data;
     }
-
+    
+    public async Task<TValue> GetOrAddAsync(string key, Func<string,Task<TValue>> factory, CancellationToken token = default)
+    {
+        key.ArgumentNotNullOrEmpty();
+        
+        var value = await GetAsync(key, token);
+        if (value is not null)
+            return value;
+        
+        value = await factory(key);
+        await SetAsync(key, value, token);
+        return value;
+    }
+    
+    public async Task<TValue> GetOrAddAsync(string key, Func<string,Task<TValue>> factory, TimeSpan expiryTime, CancellationToken token = default)
+    {
+        key.ArgumentNotNullOrEmpty();
+        
+        var value = await GetAsync(key, token);
+        if (value is not null)
+            return value;
+        
+        value = await factory(key);
+        await SetAsync(key, value, expiryTime, token);
+        return value;
+    }
+    
     public async Task DeleteAsync(string key, CancellationToken token = default)
     {
         key.ArgumentNotNull();
@@ -149,7 +201,7 @@ public sealed class FasterKvCache<TValue> : IDisposable
         using var scopeSession = GetSessionWrap();
         (await scopeSession.Session.DeleteAsync(ref key, token: token).ConfigureAwait(false)).Complete();
     }
-    
+
     public async Task SetAsync(string key, TValue? value, CancellationToken token = default)
     {
         key.ArgumentNotNullOrEmpty();
@@ -157,7 +209,7 @@ public sealed class FasterKvCache<TValue> : IDisposable
         using var sessionWrap = GetSessionWrap();
         await SetInternalAsync(sessionWrap, key, value, token);
     }
-    
+
     public async Task SetAsync(string key, TValue? value, TimeSpan expiryTime, CancellationToken token = default)
     {
         key.ArgumentNotNullOrEmpty();
@@ -165,7 +217,7 @@ public sealed class FasterKvCache<TValue> : IDisposable
         using var sessionWrap = GetSessionWrap();
         await SetInternalAsync(sessionWrap, key, value, token, expiryTime);
     }
-    
+
 
     private void SetInternal(ClientSessionWrap<TValue> sessionWrap, string key, TValue? value,
         TimeSpan? expiryTime = null)

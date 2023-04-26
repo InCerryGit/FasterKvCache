@@ -179,7 +179,6 @@ public sealed class FasterKvCache : IDisposable
     
     public async Task<TValue> GetOrAddAsync<TValue>(string key, Func<string, Task<TValue>> factory, CancellationToken token = default)
     {
-        key.ArgumentNotNullOrEmpty();
         factory.ArgumentNotNull();
 
         var result = await GetAsync<TValue>(key, token);
@@ -193,9 +192,7 @@ public sealed class FasterKvCache : IDisposable
     
     public async Task<TValue> GetOrAddAsync<TValue>(string key, Func<string, Task<TValue>> factory, TimeSpan expiryTime, CancellationToken token = default)
     {
-        key.ArgumentNotNullOrEmpty();
         factory.ArgumentNotNull();
-        expiryTime.ArgumentNotNegativeOrZero();
 
         var result = await GetAsync<TValue>(key, token);
         if (result is not null)

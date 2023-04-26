@@ -99,7 +99,7 @@ public sealed class FasterKvCache<TValue> : IDisposable
     
     public TValue GetOrAdd(string key, Func<string,TValue> factory)
     {
-        key.ArgumentNotNullOrEmpty();
+        factory.ArgumentNotNull();
         
         var value = Get(key);
         if (value is not null)
@@ -112,7 +112,7 @@ public sealed class FasterKvCache<TValue> : IDisposable
     
     public TValue GetOrAdd(string key, Func<string,TValue> factory, TimeSpan expiryTime)
     {
-        key.ArgumentNotNullOrEmpty();
+        factory.ArgumentNotNull();
         
         var value = Get(key);
         if (value is not null)
@@ -170,7 +170,7 @@ public sealed class FasterKvCache<TValue> : IDisposable
     
     public async Task<TValue> GetOrAddAsync(string key, Func<string,Task<TValue>> factory, CancellationToken token = default)
     {
-        key.ArgumentNotNullOrEmpty();
+        factory.ArgumentNotNull();
         
         var value = await GetAsync(key, token);
         if (value is not null)
@@ -183,7 +183,7 @@ public sealed class FasterKvCache<TValue> : IDisposable
     
     public async Task<TValue> GetOrAddAsync(string key, Func<string,Task<TValue>> factory, TimeSpan expiryTime, CancellationToken token = default)
     {
-        key.ArgumentNotNullOrEmpty();
+        factory.ArgumentNotNull();
         
         var value = await GetAsync(key, token);
         if (value is not null)

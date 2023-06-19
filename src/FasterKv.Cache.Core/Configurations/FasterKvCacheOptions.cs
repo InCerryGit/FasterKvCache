@@ -62,6 +62,21 @@ public sealed class FasterKvCacheOptions
     public string? SerializerName { get; set; }
 
     /// <summary>
+    /// Preallocate file
+    /// </summary>
+    public bool PreallocateFile { get; set; } = false;
+    
+    /// <summary>
+    /// Delete file on close
+    /// </summary>
+    public bool DeleteFileOnClose { get; set; } = true;
+    
+    /// <summary>
+    /// Try recover latest
+    /// </summary>
+    public bool TryRecoverLatest { get; set; } = false;
+
+    /// <summary>
     /// Expiry key scan thread interval
     /// </summary>
     /// <para>Timed deletion of expired keys</para>
@@ -97,11 +112,11 @@ public sealed class FasterKvCacheOptions
         return new LogSettings
         {
             LogDevice = Devices.CreateLogDevice(Path.Combine(LogPath, name) + ".log",
-                preallocateFile: true,
-                deleteOnClose: true),
+                preallocateFile: PreallocateFile,
+                deleteOnClose: DeleteFileOnClose),
             ObjectLogDevice = Devices.CreateLogDevice(Path.Combine(LogPath, name) + ".obj.log",
-                preallocateFile: true,
-                deleteOnClose: true),
+                preallocateFile: PreallocateFile,
+                deleteOnClose: DeleteFileOnClose),
             PageSizeBits = PageSizeBit,
             MemorySizeBits = MemorySizeBit,
             ReadCacheSettings = new ReadCacheSettings

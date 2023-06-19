@@ -177,8 +177,11 @@ public FasterKvCache(
 * PageSizeBit：FasterKv内存页的大小，配置为2的次方数。**默认为20，也就是2的20次方，每页大小为1MB内存。**
 * ReadCacheMemorySizeBit：FasterKv读缓存内存字节数，配置为2的次方数，缓存内的都是热点数据，最好设置为热点数据所占用的内存数量。**默认为20，也就是2的20次方，使用16MB内存。**
 * ReadCachePageSizeBit：FasterKv读缓存内存页的大小，配置为2的次方数。**默认为20，也就是2的20次方，每页大小为1MB内存。**
-* LogPath：FasterKv日志文件的目录，默认会创建两个日志文件，一个以`.log`结尾，一个以`obj.log`结尾，分别存放日志信息和Value序列化信息，**注意，不要让不同的FasterKvCache使用相同的日志文件，会出现不可预料异常**。**默认为{当前目录}/FasterKvCache/{进程Id}-HLog/{实例名称}.log**。
+* LogPath：FasterKv日志文件的目录，默认会创建两个日志文件，一个以`.log`结尾，一个以`obj.log`结尾，分别存放日志信息和Value序列化信息，如果开启了`DeleteFileOnClose`和`TryRecoverLatest`，也会创建一个`.checkpoint`来进行故障恢复，**注意，不要让不同的FasterKvCache使用相同的日志文件，会出现不可预料异常**。**默认为`{当前目录}/FasterKvCache/{进程Id}-HLog/{实例名称}.log`**。
 * SerializerName：Value序列化器名称，需要安装序列化Nuget包，如果没有单独指定`Name`的情况下，可以使用`MessagePack`和`SystemTextJson`。**默认无需指定**。
+* PreallocateFile: 是否预分配日志文件，如果开启，那么在创建日志文件的时候会预分配指定1GB大小的文件，如果有大量数据的话，预分配能提升性能。**默认为false**。
+* DeleteFileOnClose: 是否在关闭的时候删除日志文件，如果开启，那么在关闭的时候会删除日志文件，如果不开启，那么会保留日志文件，下次启动的时候会继续使用。**默认为true**。
+* TryRecoverLatest: 是否在启动的时候尝试恢复最新的日志文件，如果开启，那么在启动的时候会尝试恢复最新的日志文件，如果不开启，那么会重新开始，如果要使它生效，需关闭`DeleteFileOnClose`。**默认为false**。
 * ExpiryKeyScanInterval：由于FasterKv不支持过期删除功能，所以目前的实现是会定期扫描所有的key，将过期的key删除。这里配置的就是扫描间隔。**默认为5分钟**。
 * CustomStore：如果您不想使用自动生成的实例，那么可以自定义的FasterKv实例。**默认为null**。
 

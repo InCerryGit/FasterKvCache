@@ -57,7 +57,13 @@ public sealed class FasterKvCache<TValue> : IDisposable
             _fasterKv = new FasterKV<string, ValueWrapper<TValue>>(
                 options.IndexCount,
                 _logSettings,
-                serializerSettings: serializer);
+                checkpointSettings: new CheckpointSettings()
+                {
+                    CheckpointDir = options.LogPath + ".checkpoint"
+                },
+                serializerSettings: serializer,
+                tryRecoverLatest: options.TryRecoverLatest
+            );
         }
         else
         {
@@ -295,10 +301,15 @@ public sealed class FasterKvCache<TValue> : IDisposable
 
         if (_options.CustomStore != _fasterKv)
         {
+            if (_options.DeleteFileOnClose == false)
+            {
+                _fasterKv.TakeFullCheckpointAsync(CheckpointType.FoldOver).AsTask().GetAwaiter().GetResult();
+            }
             _fasterKv.Dispose();
         }
 
         _logSettings?.LogDevice.Dispose();
+        _logSettings?.ObjectLogDevice.Dispose();
     }
 
     public void Dispose()

@@ -42,6 +42,8 @@ public static class ServiceCollectionExtensions
             x.ReadCacheMemorySizeBit = option.ReadCacheMemorySizeBit;
             x.ReadCachePageSizeBit = option.ReadCachePageSizeBit;
             x.CustomStore = option.CustomStore;
+            x.DeleteFileOnClose = option.DeleteFileOnClose;
+            x.TryRecoverLatest = option.TryRecoverLatest;
         });
         services.TryAddSingleton<ISystemClock, DefaultSystemClock>();
         services.AddSingleton(provider =>

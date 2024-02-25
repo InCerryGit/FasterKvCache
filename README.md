@@ -17,9 +17,9 @@ FasterKv.Cache是一个基于微软FasterKv封装的进程内混合缓存库(内
 
 | 软件包名                                                                                          | 版本        | 备注                                                                                        |
 |-----------------------------------------------------------------------------------------------|-----------|-------------------------------------------------------------------------------------------|
-| [FasterKv.Cache.Core](https://www.nuget.org/packages/FasterKv.Cache.Core)                     | 1.0.2-rc2 | 缓存核心包，包含FasterKvCache主要的API                                                               |
-| [FasterKv.Cache.MessagePack](https://www.nuget.org/packages/FasterKv.Cache.MessagePack)       | 1.0.2-rc2 | 基于MessagePack的磁盘序列化包，它具有着非常好的性能，但是需要注意它稍微有一点使用门槛，大家可以看它的文档。                               |
-| [FasterKv.Cache.SystemTextJson](https://www.nuget.org/packages/FasterKv.Cache.SystemTextJson) | 1.0.2-rc2 | 基于System.Text.Json的磁盘序列化包，它是.NET平台上性能最好JSON序列化封装，但是比MessagePack差。不过它易用性非常好，无需对缓存实体进行单独配置。 |
+| [FasterKv.Cache.Core](https://www.nuget.org/packages/FasterKv.Cache.Core)                     | 1.0.2 | 缓存核心包，包含FasterKvCache主要的API                                                               |
+| [FasterKv.Cache.MessagePack](https://www.nuget.org/packages/FasterKv.Cache.MessagePack)       | 1.0.2 | 基于MessagePack的磁盘序列化包，它具有着非常好的性能，但是需要注意它稍微有一点使用门槛，大家可以看它的文档。                               |
+| [FasterKv.Cache.SystemTextJson](https://www.nuget.org/packages/FasterKv.Cache.SystemTextJson) | 1.0.2 | 基于System.Text.Json的磁盘序列化包，它是.NET平台上性能最好JSON序列化封装，但是比MessagePack差。不过它易用性非常好，无需对缓存实体进行单独配置。 |
 
 ## 使用
 
@@ -248,4 +248,4 @@ services.AddFasterKvCache<string>(options =>
 
 ## 其它
 
-由于现在还只是1.0.0-rc1版本，还有很多特性没有实现。可能有一些BUG还存在，欢迎大家试用和反馈问题。
+项目目前已经用于生产环境，如果遇到BUG，请及时反馈问题，将在第一时间解决。

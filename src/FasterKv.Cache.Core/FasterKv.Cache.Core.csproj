@@ -1,12 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net6.0;net7.0;netstandard2.0</TargetFrameworks>
+        <TargetFrameworks>net6.0;net7.0;netstandard2.0;net8.0;net9.0</TargetFrameworks>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.FASTER.Core" Version="2.1.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.3" />
+      <PackageReference Include="Microsoft.FASTER.Core" Version="2.6.5" />
+      <PackageReference Update="PolySharp" Version="1.15.0" />
     </ItemGroup>
 
 </Project>

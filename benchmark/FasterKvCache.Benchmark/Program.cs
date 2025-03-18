@@ -17,7 +17,7 @@ public enum TestType
 
 [GcForce]
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
-[SimpleJob(RuntimeMoniker.Net60, launchCount: 1, warmupCount: 5, targetCount: 10)]
+[SimpleJob(RuntimeMoniker.Net60, launchCount: 1, warmupCount: 5, iterationCount: 10)]
 [MemoryDiagnoser]
 #nullable disable
 public class FasterKvBenchmark

@@ -5,7 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="System.Text.Json" Version="7.0.0" />
+      <PackageReference Include="System.Text.Json" Version="9.0.3" />
+      <PackageReference Update="PolySharp" Version="1.15.0" />
     </ItemGroup>
 
     <ItemGroup>

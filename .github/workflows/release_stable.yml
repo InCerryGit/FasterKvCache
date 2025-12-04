@@ -1,10 +1,10 @@
 name: Release_Stable
 
 on:
-    push:
-      tags:
-        - "*.*.*-beta*"
-        - "*.*.*-rc*"
+  push:
+    tags:
+      - "*.*.*-beta*"
+      - "*.*.*-rc*"
           
 jobs:
   build_artifact:    
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
     - name: Setup .NET SDK 6.0.x and 7.0.x
       uses: actions/setup-dotnet@v3
       with:
@@ -20,16 +20,16 @@ jobs:
           7.0.x
           6.0.x
     - name: Build with dotnet
-      run: dotnet build --configuration Release /home/runner/work/FasterKvCache/FasterKvCache/FasterKv.Cache.sln
+      run: dotnet build --configuration Release FasterKv.Cache.sln
     - name: Pack with dotnet
       env:
         VERSION: ${{ github.ref_name }}
-      run: dotnet pack /home/runner/work/FasterKvCache/FasterKvCache/FasterKv.Cache.sln --version-suffix $VERSION -o /home/runner/work/nugetpkgs -c Release --no-build
+      run: dotnet pack FasterKv.Cache.sln --version-suffix $VERSION -o ./nugetpkgs -c Release --no-build
     - name: Upload artifact
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: nugetpkgs
-        path: /home/runner/work/nugetpkgs  
+        path: ./nugetpkgs
 
   release_nuget:
       name: Release to Nuget
@@ -38,7 +38,7 @@ jobs:
   
       steps:
         - name: Download build artifacts
-          uses: actions/download-artifact@v1
+          uses: actions/download-artifact@v4
           with:
             name: nugetpkgs
         - name: list nugetpkgs

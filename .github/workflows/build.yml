@@ -16,7 +16,7 @@ jobs:
         os: [ windows-latest ]
    
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Setup .NET SDK 6.0.x and 7.0.x
       uses: actions/setup-dotnet@v3
       with:
@@ -31,4 +31,4 @@ jobs:
    
     - name: Build with dotnet      
       run: |
-        dotnet build --configuration Release  D:\a\FasterKvCache\FasterKvCache\FasterKv.Cache.sln
+        dotnet build --configuration Release FasterKv.Cache.sln

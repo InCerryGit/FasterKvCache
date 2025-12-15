@@ -46,11 +46,28 @@ jobs:
           with:
             name: nugetpkgs
             path: .
-        - name: list nugetpkgs
-          run: ls nugetpkgs
-        - name: Release
+        - name: Debug downloaded artifacts
+          shell: bash
           run: |
-            for file in nugetpkgs/*.nupkg
-            do
-              dotnet nuget push $file -k ${{ secrets.NUGET_API_KEY }} --skip-duplicate -s https://www.nuget.org/api/v2/package
+            set -e
+            echo "PWD: $(pwd)"
+            echo "Top-level:" 
+            ls -la
+            echo "Directories (depth<=3):"
+            find . -maxdepth 3 -type d -print
+            echo "NUPKG files (depth<=6):"
+            find . -maxdepth 6 -name "*.nupkg" -print
+        - name: Release
+          shell: bash
+          run: |
+            set -e
+            shopt -s nullglob
+            mapfile -t files < <(find . -maxdepth 6 -name "*.nupkg" -print)
+            if [ ${#files[@]} -eq 0 ]; then
+              echo "No .nupkg files found after downloading artifact."
+              exit 1
+            fi
+            for file in "${files[@]}"; do
+              echo "Pushing: $file"
+              dotnet nuget push "$file" -k "${{ secrets.NUGET_API_KEY }}" --skip-duplicate -s https://www.nuget.org/api/v2/package
             done

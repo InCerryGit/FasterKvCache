@@ -52,21 +52,26 @@ jobs:
             echo "PWD: $(pwd)"
             echo "Top-level:" 
             ls -la
-            echo "Directories (depth<=3):"
-            find . -maxdepth 3 -type d -print
-            echo "NUPKG files (depth<=6):"
-            find . -maxdepth 6 -name "*.nupkg" -print
+            echo "NUPKG files:"
+            ls -la *.nupkg || true
         - name: Release
           shell: bash
           run: |
             set -e
             shopt -s nullglob
-            mapfile -t files < <(find . -maxdepth 6 -name "*.nupkg" -print)
+            files=( *.nupkg )
             if [ ${#files[@]} -eq 0 ]; then
-              echo "No .nupkg files found after downloading artifact."
+              echo "No .nupkg files found in workspace root."
               exit 1
             fi
+
             for file in "${files[@]}"; do
+              case "$file" in
+                *.snupkg|*symbols*.nupkg|*Benchmark*.nupkg|*Sample*.nupkg|*Tests*.nupkg)
+                  echo "Skipping: $file"
+                  continue
+                  ;;
+              esac
               echo "Pushing: $file"
               dotnet nuget push "$file" -k "${{ secrets.NUGET_API_KEY }}" --skip-duplicate -s https://www.nuget.org/api/v2/package
             done

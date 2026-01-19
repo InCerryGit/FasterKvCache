@@ -4,6 +4,8 @@
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 		<LangVersion>11</LangVersion>
 		<Nullable>enable</Nullable>
+		<!-- Default: do not pack unless explicitly enabled in a project -->
+		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 
 	<ItemGroup>

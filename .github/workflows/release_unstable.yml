@@ -60,6 +60,8 @@ jobs:
           run: |
             set -e
             shopt -s nullglob
+
+            # All non-library projects should have IsPackable=false, so we can push everything we packed.
             files=( *.nupkg )
             if [ ${#files[@]} -eq 0 ]; then
               echo "No .nupkg files found in workspace root."
@@ -68,7 +70,7 @@ jobs:
 
             for file in "${files[@]}"; do
               case "$file" in
-                *.snupkg|*symbols*.nupkg|*Benchmark*.nupkg|*Sample*.nupkg|*Tests*.nupkg)
+                *.snupkg|*symbols*.nupkg)
                   echo "Skipping: $file"
                   continue
                   ;;

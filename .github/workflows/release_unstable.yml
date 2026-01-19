@@ -45,11 +45,36 @@ jobs:
           uses: actions/download-artifact@v4
           with:
             name: nugetpkgs
-        - name: list nugetpkgs
-          run: ls nugetpkgs
-        - name: Release
+            path: .
+        - name: Debug downloaded artifacts
+          shell: bash
           run: |
-            for file in nugetpkgs/*.nupkg
-            do
-              dotnet nuget push $file -k ${{ secrets.NUGET_API_KEY }} --skip-duplicate -s https://www.nuget.org/api/v2/package
+            set -e
+            echo "PWD: $(pwd)"
+            echo "Top-level:" 
+            ls -la
+            echo "NUPKG files:"
+            ls -la *.nupkg || true
+        - name: Release
+          shell: bash
+          run: |
+            set -e
+            shopt -s nullglob
+
+            # All non-library projects should have IsPackable=false, so we can push everything we packed.
+            files=( *.nupkg )
+            if [ ${#files[@]} -eq 0 ]; then
+              echo "No .nupkg files found in workspace root."
+              exit 1
+            fi
+
+            for file in "${files[@]}"; do
+              case "$file" in
+                *.snupkg|*symbols*.nupkg)
+                  echo "Skipping: $file"
+                  continue
+                  ;;
+              esac
+              echo "Pushing: $file"
+              dotnet nuget push "$file" -k "${{ secrets.NUGET_API_KEY }}" --skip-duplicate -s https://www.nuget.org/api/v2/package
             done

@@ -3,9 +3,8 @@ name: Release_Unstable
 on:
   push:
     tags:
-      - "*.*.*"
-      - "!*.*.*-beta*"
-      - "!*.*.*-rc*"
+      - "*.*.*-beta*"
+      - "*.*.*-rc*"
 
 jobs:
   build_artifact:    
@@ -28,7 +27,7 @@ jobs:
     - name: Pack with dotnet
       env:
         VERSION: ${{ github.ref_name }}
-      run: dotnet pack FasterKv.Cache.sln --version-suffix $VERSION -o ./nugetpkgs -c Release --no-build
+      run: dotnet pack FasterKv.Cache.sln -p:PackageVersion=$VERSION -o ./nugetpkgs -c Release --no-build
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
